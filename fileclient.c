@@ -111,42 +111,42 @@ int main()
 	freeaddrinfo(servinfo);
 
 	while(1){
-	  printf("1. List available files on the server\n");
-	  printf("2. Download a file\n");
-	  printf("3. Upload a file to the server\n");
-	  printf("4. Exit\n");
-	  scanf("%d", &opt);
-	  x = htonl(opt); //host to network converssion
-	  if(send(sockfd, &x, sizeof(int), 0) < 0){
-	  	perror("client: send");
-	  	continue;
-	  }
-	  switch(opt){
-	  	  case 1 :
-	  	    if((rdata = recv(sockfd, dir, MAXDATA-1, 0)) > 0){
-			    dir[rdata] = '\0';
-	  	  	    printf("%s\n", dir);
+		printf("1. List available files on the server\n");
+		printf("2. Download a file\n");
+		printf("3. Upload a file to the server\n");
+		printf("4. Exit\n");
+		scanf("%d", &opt);
+		x = htonl(opt); //host to network converssion
+		if(send(sockfd, &x, sizeof(int), 0) < 0){
+			perror("client: send");
+			continue;
+		}
+		switch(opt){
+			case 1 :
+				if((rdata = recv(sockfd, dir, MAXDATA-1, 0)) > 0){
+				dir[rdata] = '\0';
+					    printf("%s\n", dir);
 				rdata = 0;
-	  	    }
-	  	    break;
+				}
+				break;
 
-		  case 2 :
-		    printf("Enter the filename: ");
-			scanf(" %s", filename);
-			send(sockfd, filename, strlen(filename), 0);
-			buf = (char*)malloc(3048);
-			if((rdata = recv(sockfd, buf, 3048, 0)) > 0){
-				fp = fopen(filename, "w");
-				fprintf(fp, "%s", buf);
-				free(buf);
-				printf("File download complete\n\n");
-				fclose(fp);
-			}
-			else{
-				printf("Unable to download file..\n\n");
-				continue;
-			}
-			break;
+			case 2 :
+				printf("Enter the filename: ");
+				scanf(" %s", filename);
+				send(sockfd, filename, strlen(filename), 0);
+				buf = (char*)malloc(3048);
+				if((rdata = recv(sockfd, buf, 3048, 0)) > 0){
+					fp = fopen(filename, "w");
+					fprintf(fp, "%s", buf);
+					free(buf);
+					printf("File download complete\n\n");
+					fclose(fp);
+				}
+				else{
+					printf("Unable to download file..\n\n");
+					continue;
+				}
+				break;
 
 			case 3 :
 			    printf("Enter filename to upload: ");
@@ -180,10 +180,10 @@ int main()
 			case 4:
 			  return 0;
 
-	  	default :
-	  	   printf("Not implemented\n");
-	  	   break;
-	  }
+			default :
+			   printf("Not implemented\n");
+			   break;
+		}
 	}
 
 	#ifdef __WIN32

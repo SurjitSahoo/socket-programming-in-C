@@ -104,63 +104,61 @@ int main()
 	    printf("Server: got a connection from %s\n", s);
 
 	    while(1){
-	      if((rdata = recv(clnt, &x, sizeof(int), 0)) > 0){
-  	        opt = ntohl(x);
-	        switch(opt){
-	      	  case 1 :
-	      	    if((dr = opendir(".")) != NULL){
-	      	  	  while((de = readdir(dr)) != NULL){
-	      	  	    sprintf(filename, "%s\n", de->d_name);
-					strcat(directory, filename);
-	      	  	  }
-				  rdata = send(clnt, directory, strlen(directory), 0);
-	      	    }
-				else send(clnt, "unable to open directory\n", 25, 0);
-	      	    break;
+	    	if((rdata = recv(clnt, &x, sizeof(int), 0)) > 0){
+	  	        opt = ntohl(x);
+		        switch(opt){
+		      	  	case 1 :
+			      	    if((dr = opendir(".")) != NULL){
+			      	  	  while((de = readdir(dr)) != NULL){
+			      	  	    sprintf(filename, "%s\n", de->d_name);
+							strcat(directory, filename);
+			      	  	  }
+						  rdata = send(clnt, directory, strlen(directory), 0);
+			      	    }
+						else send(clnt, "unable to open directory\n", 25, 0);
+			      	    break;
 
 				    case 2 :
-						  if((rdata = recv(clnt, filename, 20, 0)) > 0){
-								filename[rdata] = '\0';
-								if((fp = fopen(filename, "r")) != NULL){
-									fseek(fp, 0, SEEK_END);
-									datalen = ftell(fp);
-									buf = (char*)malloc(datalen + 1);
-									fseek(fp, 0, SEEK_SET);
-									fread(buf,datalen, 1, fp);
-									fclose(fp);
-									if((rdata = send(clnt, buf, datalen, 0)) < 0){
-										perror("Server: send file");
-										continue;
-									}
-									free(buf);
-								}
-							}
-							break;
-
-						case 3 :
-						  if((rdata = recv(clnt, filename, 20, 0)) > 0){
-								filename[rdata] = '\0';
-								buf = (char*)malloc(3048);
-								if((rdata = recv(clnt, buf, 3048, 0)) > 0){
-									buf[rdata] = '\0';
-									fp = fopen(filename, "w");
-									fprintf(fp, "%s", buf);
-									fclose(fp);
-								}
-								else{
-									perror("server: recv file");
+						if((rdata = recv(clnt, filename, 20, 0)) > 0){
+							filename[rdata] = '\0';
+							if((fp = fopen(filename, "r")) != NULL){
+								fseek(fp, 0, SEEK_END);
+								datalen = ftell(fp);
+								buf = (char*)malloc(datalen + 1);
+								fseek(fp, 0, SEEK_SET);
+								fread(buf,datalen, 1, fp);
+								fclose(fp);
+								if((rdata = send(clnt, buf, datalen, 0)) < 0){
+									perror("Server: send file");
 									continue;
 								}
+								free(buf);
+							}
+						}
+						break;
+
+					case 3 :
+						if((rdata = recv(clnt, filename, 20, 0)) > 0){
+							filename[rdata] = '\0';
+							buf = (char*)malloc(3048);
+							if((rdata = recv(clnt, buf, 3048, 0)) > 0){
+								buf[rdata] = '\0';
+								fp = fopen(filename, "w");
+								fprintf(fp, "%s", buf);
+								fclose(fp);
 							}
 							else{
-								perror("server: recv filename to upload");
+								perror("server: recv file");
 								continue;
 							}
-							break;
-	        }
-
-
-          }
+						}
+						else{
+							perror("server: recv filename to upload");
+							continue;
+						}
+						break;
+		        }
+            }
 	    }
 	  }
 	}
